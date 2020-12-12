@@ -1,0 +1,46 @@
+# 目的
+- 報酬の意味で最適になるように学習する
+- lossは累積リグレット
+- in the NS-MAB setting the arms that are optimal might change over time.
+- 非線形な設定では単純にバウンドできないので、average boundを考える
+    - average pseudo-regret
+    - 式(2)参照
+- 非線形な設定では各腕の報酬分布が時間によって変化する
+    - 問題に寄って定義は必要
+    - In what follows, we will discuss two different settings where the evolution over time of the reward distributions of the arms is constrained to change according to specific schemes.
+    - AC-MABではp.316の一番上の式で期待リグレットが書ける
+
+# 仮定
+- breakpoint数に上界を設けている
+    - B_N ≤ BN^{α}, α ∈ [0, 1)
+
+# 用語
+finite horizon: 有限時間区間
+finite set: 有限集合
+
+# 記号
+N: finite horizon
+t: each round over a finite horizon N
+K: 腕の数
+A: 腕集合
+a_k: 各腕
+a_{i_t}: 各ラウンドtにおける各腕
+x_{{i_t},t}: 各ラウンドで各腕a_{i_t}から得られるリワード
+X_{i,t}: The reward for each arm ai at round t is modeled by a sequence of independent random variables X_{i,t} from a distribution unknown to the learner.
+μ_{i,t}: 各ラウンドtに各腕a_iから得られる期待リワード(μi,t := E[Xi,t] the expected value of the reward of the arm ai at round t.)
+U: A policy U is a function U(h_t) = a_{i_t}
+h_t: history ht, defined as the sequence of past plays and obtained rewards.
+R_N(U): cumulative dynamic pseudo-regret
+μ_{i^{∗}_{t}}: maxi∈{1,...,K}μ_{i,t} is the expected reward of the optimal arm a_{i^∗_t} at round t
+b: breakpoint (by Garivier and Moulines (2008). In this scenario, the reward distributions are constant during sequences of rounds, namely phases, and change at unknown rounds, namely breakpoints.)
+   b ∈ {1, . . . , N} s.t. ∃_i | μ_{i,b−1} /= μ_{i,b}
+   breakpointでは少なくとも一つの腕の報酬分布が変化する
+B: breakpoint集合 {b_1, . . . , b_{B_N}}
+B_N: cardinality
+F: phase. each phase is a set of rounds between two consecutive breakpoints ({F1, . . . , F_{B_N}})
+   F_φ = {t ∈ {1, . . . , N} s.t. b_{φ−1} ≤ t < b_φ}.
+   各phaseにラウンドが内包される
+
+# 参照
+- https://arxiv.org/pdf/1802.08380.pdf
+- https://github.com/baekjin-kim/NonstationaryLB
