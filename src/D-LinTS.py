@@ -1,20 +1,13 @@
-"""
-    File description: Implementation of the 
-    Discounted Linera Thompson Sampling presented in the paper
-"""
-
-# Modified Author: Baekjin Kim (baekjin@umich.edu)
-# Copyright (c) 2019, Yoan Russac (yoan.russac@ens.fr)
-# License: BSD (3-clause)
-
-# Importations
 import numpy as np
 from math import log
 from numpy.linalg import pinv
 from numpy import linalg as LA
 from scipy.stats import truncnorm
 import scipy
+from dataclasses import dataclass
 
+
+@dataclass
 class DLinTS(object):
     def __init__(self, d, delta, alpha, lambda_, s, l, gamma, name, sm, sigma_noise, verbose):
         """
