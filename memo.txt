@@ -42,6 +42,7 @@ F: phase. each phase is a set of rounds between two consecutive breakpoints ({F1
    各phaseにラウンドが内包される
 
 # 参照
+- https://www.jair.org/index.php/jair/article/view/11407
 - https://arxiv.org/abs/1209.3352
 - https://arxiv.org/pdf/1802.08380.pdf
 - https://arxiv.org/pdf/1912.05695.pdf
