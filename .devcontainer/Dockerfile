@@ -16,4 +16,5 @@ RUN pip install -U pip \
     plotly \
     flake8 \
     black \
-    mlflow
+    mlflow \
+    scipy
