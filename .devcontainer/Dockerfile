@@ -17,4 +17,5 @@ RUN pip install -U pip \
     flake8 \
     black \
     mlflow \
-    scipy
+    scipy \
+    tqdm

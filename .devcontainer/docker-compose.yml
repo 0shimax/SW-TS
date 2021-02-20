@@ -2,11 +2,14 @@ version: "3"
 services:
   sw-ts:
     container_name: sw-ts
-    image: sh7/sw-ts:v0.1
+    image: python39-pytorch  # sh7/sw-ts:v0.1
+    # build:
+    #   context: ./
+    #   dockerfile: Dockerfile
     command: sleep infinity
     ports:
       - 8888:8888
-      - 5000:5000
+      # - 5000:5000
     volumes:
-      - C:\Users\sh70k\project:/project
-      - C:\Users\sh70k\data:/data
+      - ~/projects:/project
+      - ~/data:/data

@@ -5,7 +5,7 @@ from numpy.linalg import pinv
 # from scipy.stats import truncnorm
 import scipy
 from dataclasses import dataclass
-from arm import ArmGaussian
+# from arm import ArmGaussian
 
 
 @dataclass
@@ -26,21 +26,20 @@ class DLinTS(object):
         - omniscient: Does the policy knows when the breakpoints happen ?
     ACTION NORMS ARE SUPPOSED TO BE BOUNDED BE 1
     """
-    d: int
+    dim: int
     delta: float
     alpha: float
     lambda_: float
-    s: float
-    l: float
+    # s: float
+    # l: float
     gamma: float
-    name: str
     sigma_noise: float
-    verbose: bool = True
+    verbose: bool  # = True
     # S-M cannot be used with this model for the moment
-    sm: bool = False
-    omniscient: bool = False
-    t: int = 0
-    gamma2_t: float = 1.
+    sm: bool  # = False
+    # omniscient: bool  # = False
+    t: int = None
+    gamma2_t: float = None
 
     def __post_init__(self):
         ''' build attributes '''
@@ -54,56 +53,12 @@ class DLinTS(object):
         self.cov = self.lambda_ * np.identity(self.dim)
         # Design Square Matrix
         self.cov_squared = self.lambda_ * np.identity(self.dim)
-        self.invcov = pinv(self.cov)  # 1 / self.lambda_ * np.identity(self.dim)
+        self.invcov = 1 / self.lambda_ * np.identity(self.dim)
         self.b = np.zeros(self.dim)
+        self.t = 0
+        self.gamma2_t = 1.0
 
-    def select_arm(self, arms: list[ArmGaussian]) -> int:
-        """
-        Selecting an arm according to the D-FTGPL policy
-        param:
-            - arms : list of objects Arm with contextualized features
-        Output:
-        -------
-        chosen_arm : index of the pulled arm
-        """
-        assert type(arms) == list, 'List of arms as input required'
-        k_t = len(arms)  # available actions at time t
-        ucb_s = np.zeros(k_t)  # upper-confidence bounds for every action
-        const1 = np.sqrt(self.lambda_) * self.s
-        beta_t = const1 + self.sigma_noise * \
-            np.sqrt(self.c_delta + self.dim *
-                    np.log(1 + self.l**2 * (1 - self.gamma2_t) / (self.dim *
-                           self.lambda_*(1 - self.gamma**2))))
-        for (i, arm) in enumerate(arms):
-            features = arm.features
-            if self.t < self.dim:
-                ucb_s[i] = np.Inf
-            else:
-                ucb_s[i] = np.dot(self.hat_theta, features)
-
-        # Shuffle to avoid always pulling the same arm when ties
-        mixer = np.random.random(ucb_s.size)
-        # # Sort the indices
-        # ucb_indices = list(np.lexsort((mixer, ucb_s)))
-        # # Reverse list
-        # output = ucb_indices[::-1]
-        # chosen_arm = output[0]
-
-        # Sort the indices
-        ucb_indices = np.lexsort((mixer, ucb_s))
-        chosen_arm = ucb_indices[-1]
-        if self.verbose:
-            # Sanity checks
-            print('-- lambda:', self.lambda_)
-            print('--- beta_t:', beta_t)
-            print('--- theta_hat: ', self.hat_theta)
-            print('--- Design Matrix:', self.cov)
-            print('--- Design Square Matrix:', self.cov_squared)
-            print('--- UCBs:', ucb_s)
-            print('--- Chosen arm:', chosen_arm)
-        return chosen_arm
-
-    def update_state(self, features: np.ndarray, reward: float):
+    def update_state(self, features:np.ndarray, reward:float):
         """
         Updating the main parameters for the model
         param:
@@ -138,24 +93,12 @@ class DLinTS(object):
             print('Reward received  =', reward)
         self.t += 1
 
-    def re_init(self):
-        """
-        Re-init function to reinitialize the statistics while keeping the same hyperparameters
-        """
-        self.t = 0
-        self.hat_theta = np.zeros(self.dim)
-        self.cov = self.lambda_ * np.identity(self.dim)
-        self.invcov = 1 / self.lambda_ * np.identity(self.dim)
-        self.cov_squared = self.lambda_ * np.identity(self.dim)
-        self.b = np.zeros(self.dim)
-        self.gamma2_t = 1
-
-        if self.verbose:
-            print('Parameters of the policy reinitialized')
-            print('Design Matrix after init: ', self.cov)
+    def calculate_win_rate(self, features:np.ndarray):
+        assert isinstance(features, np.ndarray), 'np.array required'
+        return features.dot(self.hat_theta)[0][0]
 
     def __str__(self):
-        return 'D-LinTS' + self.name
+        return 'D-LinTS'
 
     @staticmethod
     def id():
